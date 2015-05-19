@@ -6,6 +6,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+/**
+ * Packets are used to send data between the Android application and your application.
+ * <p>Packet types <b>cannot contain whitespace</b>. However, types can have special characters, and packet data can have whitespace and special characters (e.g. ?, #, @, `)</p>
+ */
 public class Packet {
 
     private String type;
@@ -37,8 +41,8 @@ public class Packet {
 
     /**
      * Constructor to create a Packet using either the type of the packet or a compiled packet string. If the constructor was used with just a packet type, the Packet's data will be a blank initialised ArrayList. If the constructor was used with a serialised Packet string, it will be deserialised into the Packet.
-     * {@code new Packet("enableAccelerometer")} would create a Packet with the type "enableAccelerometer" and no data - although the data variable will be initialised.
-     * {@code new Packet("packet YXBwbGUNCg== ZXhhbXBsZQ==")} would create a Packet with the type "packet" and the data would be an ArrayList containing 'apple' and 'example'.
+     * <p>{@code new Packet("enableAccelerometer")} would create a Packet with the type "enableAccelerometer" and no data - although the data variable will be initialised.</p>
+     * <p>{@code new Packet("packet YXBwbGUNCg== ZXhhbXBsZQ==")} would create a Packet with the type "packet" and the data would be an ArrayList containing 'apple' and 'example'.</p>
      *
      * @param data If used as a packetType, it may include characters that are not whitespace (e.g abc_def is valid as well as a#b?c). Otherwise, the data variable would be a serialised packet that would be deserialised.
      */
@@ -92,5 +96,23 @@ public class Packet {
 
     public void setData( ArrayList<String> data ) {
         this.data = data;
+    }
+
+    /**
+     * Will generate a serialised packet that is ready to be sent by a {@code Device}.
+     * <p>Packets are used to communicate between the Android application and client-side applications.
+     * Packet types <b>cannot</b> include whitespace but can include special characters. For packet data, whitespace and special characters are allowed.</p>
+     * @return
+     */
+    public String serialize(){
+        String serialised = this.type;
+
+        for(String d : this.data){
+
+            serialised += " " + Base64.encodeBytes( d.getBytes() );
+
+        }
+
+        return serialised;
     }
 }
