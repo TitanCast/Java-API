@@ -81,14 +81,15 @@ public class TitanCastDevice extends WebSocketClient {
 
                     // Make it clear that we're connected
                     connectionState = ConnectionState.connected;
-                    accepted();
+                    onConnectionRequestAccepted();
                 }
                 break;
             case "reject_connect_request":
                 // Aww, it hasn't been accepted
                 if (connectionState == ConnectionState.awaitingResponse) {
+                    // Make it clear that we're not connected
                     connectionState = ConnectionState.notConnected;
-                    rejected();
+                    onConnectionRequestRejected();
                 }
                 break;
             case "custom_data":
@@ -103,4 +104,21 @@ public class TitanCastDevice extends WebSocketClient {
     private void sendPacket(Packet p) {
         send(p.serialize());
     }
+
+    /**
+     * Method that is called if a previous connection request to an android device has been accepted. Should be
+     * overridden by an application developer.
+     */
+    public void onConnectionRequestAccepted() {
+
+    }
+
+    /**
+     * Method that is called if a previous connection request to an android device has been rejected. Should be
+     * overridden by an application developer.
+     */
+    public void onConnectionRequestRejected() {
+
+    }
+
 }
