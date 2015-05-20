@@ -93,7 +93,18 @@ public class TitanCastDevice extends WebSocketClient {
                 }
                 break;
             case "custom_data":
-                customData(new Packet(StringUtils.newStringUtf8(Base64.decodeBase64(packet.getDataAsString().getBytes())), true));
+                // We received a packet with custom data, so obtain the data...
+                String serializedPacketData = packet.getDataAsString();
+
+                // ...deserialize it...
+                String deserializedPacketData = StringUtils.newStringUtf8(
+                        Base64.decodeBase64(serializedPacketData.getBytes()));
+
+                // ...make a Packet...
+                Packet customPacket = new Packet(deserializedPacketData, true);
+
+                // ...and call onCustomPacketReceived with the new packet
+                onCustomPacketReceived(customPacket);
                 break;
             default:
                 System.out.println(packet.getType());
@@ -120,5 +131,15 @@ public class TitanCastDevice extends WebSocketClient {
     public void onConnectionRequestRejected() {
 
     }
+
+    /**
+     * Method that is called if a custom packet (i.e. one that is not handled as a special case in onMessage) is
+     * received from the android device. Should be overwritten by a developer.
+     * @param customPacket The packet that has been received, properly deserialized and decoded.
+     */
+    public void onCustomPacketReceived(Packet customPacket) {
+
+    }
+
 
 }
