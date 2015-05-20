@@ -56,7 +56,7 @@ public abstract class TitanCastDevice extends WebSocketClient {
             case "device_details":
                 // Details of the device have been sent, so start a connection request
                 if (connectionState == ConnectionState.notConnected) {
-                    sendPacket(new Packet("request_connect", new String[]{
+                    sendRawPacket(new Packet("request_connect", new String[]{
                             application.getAppName(),
                             application.getAppDesc(),
                             application.getIcon().getImage()
@@ -70,7 +70,7 @@ public abstract class TitanCastDevice extends WebSocketClient {
                 // Yay, our request has been accepted
                 if (connectionState == ConnectionState.awaitingResponse) {
                     // Send a packet to the android device to make it load the cast page
-                    sendPacket(new Packet("cast_view_data", new String[]{
+                    sendRawPacket(new Packet("cast_view_data", new String[]{
                             application.getAppCastURL()
                     }));
 
