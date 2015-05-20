@@ -74,10 +74,12 @@ public class TitanCastDevice extends WebSocketClient {
             case "accept_connect_request":
                 // Yay, our request has been accepted
                 if (connectionState == ConnectionState.awaitingResponse) {
+                    // Send a packet to the android device to make it load the cast page
                     sendPacket(new Packet("cast_view_data", new String[]{
                             application.getAppCastURL()
                     }));
 
+                    // Make it clear that we're connected
                     connectionState = ConnectionState.connected;
                     accepted();
                 }
@@ -86,7 +88,6 @@ public class TitanCastDevice extends WebSocketClient {
                 // Aww, it hasn't been accepted
                 if (connectionState == ConnectionState.awaitingResponse) {
                     connectionState = ConnectionState.notConnected;
-                    close();
                     rejected();
                 }
                 break;
@@ -101,15 +102,5 @@ public class TitanCastDevice extends WebSocketClient {
 
     public void sendPacket(Packet p) {
         send(p.serialize());
-    }
-
-    @Override
-    public void onClose(int code, String reason, boolean remote) {
-
-    }
-
-    @Override
-    public void onError(Exception ex) {
-
     }
 }
