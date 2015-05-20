@@ -1,6 +1,8 @@
 package com.hydrabolt.titancast.javaapi;
 
 import com.hydrabolt.titancast.javaapi.utils.Packet;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.binary.StringUtils;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 
@@ -50,10 +52,55 @@ public class TitanCastDevice extends WebSocketClient {
     }
 
     @Override
-    public void onMessage(String message) {
+    public final void onMessage(String rawMessage) {
+        // Create new packet with the raw data provided
+        Packet packet = new Packet(rawMessage);
 
-        Packet p = new Packet(message);
+        // Find out what type of packet has been sent over
+        switch (packet.getType()) {
+            case "device_details":
+                // Details of the device have been sent, so start a connection request
+                if (connectionState == ConnectionState.notConnected) {
+                    sendPacket(new Packet("request_connect", new String[]{
+                            application.getAppName(),
+                            application.getAppDesc(),
+                            application.getIcon().getImage()
+                    }));
 
+                    // Make it clear that we're currently awaiting a response
+                    connectionState = ConnectionState.awaitingResponse;
+                }
+                break;
+            case "accept_connect_request":
+                // Yay, our request has been accepted
+                if (connectionState == ConnectionState.awaitingResponse) {
+                    sendPacket(new Packet("cast_view_data", new String[]{
+                            application.getAppCastURL()
+                    }));
+
+                    connectionState = ConnectionState.connected;
+                    accepted();
+                }
+                break;
+            case "reject_connect_request":
+                // Aww, it hasn't been accepted
+                if (connectionState == ConnectionState.awaitingResponse) {
+                    connectionState = ConnectionState.notConnected;
+                    close();
+                    rejected();
+                }
+                break;
+            case "custom_data":
+                customData(new Packet(StringUtils.newStringUtf8(Base64.decodeBase64(packet.getDataAsString().getBytes())), true));
+                break;
+            default:
+                System.out.println(packet.getType());
+                break;
+        }
+    }
+
+    public void sendPacket(Packet p) {
+        send(p.serialize());
     }
 
     @Override
