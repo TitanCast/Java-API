@@ -7,8 +7,26 @@ import org.java_websocket.handshake.ServerHandshake;
 import java.net.URI;
 
 public class Device extends WebSocketClient {
+    /**
+     * Enum representing the current connectivity state the Device is in.
+     */
+    public enum ConnectionState {
+        /**
+         * The device is currently not connected to a peer and no request has been sent.
+         */
+        notConnected,
+        /**
+         * A request has been sent, but no connection has been established yet.
+         */
+        awaitingResponse,
+        /**
+         * The device is connected to a peer.
+         */
+        connected
+    }
 
     private TitanCastApplication application;
+    private ConnectionState connectionState;
 
     public Device(URI uri, TitanCastApplication application){
         super(uri);
