@@ -127,11 +127,10 @@ public abstract class TitanCastDevice extends WebSocketClient {
     /**
      * Method that is called if a custom packet (i.e. one that is not handled as a special case in onMessage) is
      * received from the android device. Should be overwritten by a developer.
+     *
      * @param customPacket The packet that has been received, properly deserialized and decoded.
      */
     public void onCustomPacketReceived(Packet customPacket) {
 
     }
-
-
 }
