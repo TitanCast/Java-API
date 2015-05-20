@@ -108,8 +108,19 @@ public abstract class TitanCastDevice extends WebSocketClient {
         send(packet.serialize());
     }
 
+    /**
+     * Sends a custom packet by serializing and encoding it and wrapping it in a custom_data packet.
+     * @param packet The custom packet that should be sent, not serialized or encoded in any way.
+     */
     public void sendPacket(Packet packet) {
+        // To send a custom packet, we have to serialize it...
+        String serializedPacket = packet.serialize();
 
+        // ...create a new custom_data packet with the serialized packet as the data...
+        Packet customPacket = new Packet("custom_data", new String[]{serializedPacket});
+
+        // ...and send it
+        sendRawPacket(customPacket);
     }
 
     /**
