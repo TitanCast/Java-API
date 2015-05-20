@@ -88,17 +88,10 @@ public abstract class TitanCastDevice extends WebSocketClient {
                 }
                 break;
             case "custom_data":
-                // We received a packet with custom data, so obtain the data...
-                String serializedPacketData = packet.getDataAsString();
+                // We received a packet with custom data that we have to decode.
+                Packet customPacket = decodeCustomPacket(packet);
 
-                // ...deserialize it...
-                String deserializedPacketData = StringUtils.newStringUtf8(
-                        Base64.decodeBase64(serializedPacketData.getBytes()));
-
-                // ...make a Packet...
-                Packet customPacket = new Packet(deserializedPacketData, true);
-
-                // ...and call onCustomPacketReceived with the new packet
+                // Now make the application aware that we have received the packet
                 onCustomPacketReceived(customPacket);
                 break;
         }
@@ -106,6 +99,21 @@ public abstract class TitanCastDevice extends WebSocketClient {
 
     private void sendRawPacket(Packet packet) {
         send(packet.serialize());
+    }
+
+    private Packet decodeCustomPacket(Packet packet) {
+        // We got a packet with custom data, so obtain the data...
+        String serializedPacketData = packet.getDataAsString();
+
+        // ...deserialize it...
+        String deserializedPacketData = StringUtils.newStringUtf8(
+                Base64.decodeBase64(serializedPacketData.getBytes()));
+
+        // ...make a Packet...
+        Packet customPacket = new Packet(deserializedPacketData, true);
+
+        // ...and return it
+        return customPacket;
     }
 
     /**
