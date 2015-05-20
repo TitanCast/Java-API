@@ -1,4 +1,4 @@
-package com.hydrabolt.titancast.java_api.utils;
+package com.hydrabolt.titancast.javaapi.utils;
 
 import org.java_websocket.util.Base64;
 

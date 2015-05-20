@@ -1,4 +1,4 @@
-package com.hydrabolt.titancast.java_api;
+package com.hydrabolt.titancast.javaapi;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;

@@ -1,6 +1,6 @@
-package com.hydrabolt.titancast.java_api;
+package com.hydrabolt.titancast.javaapi;
 
-import com.hydrabolt.titancast.java_api.utils.Packet;
+import com.hydrabolt.titancast.javaapi.utils.Packet;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 
