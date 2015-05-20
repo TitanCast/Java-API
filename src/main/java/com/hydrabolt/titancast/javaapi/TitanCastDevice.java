@@ -12,7 +12,7 @@ import java.net.URI;
  * Class representing the connection logic of a local application connecting to an android device. It should be
  * overwritten with an own class and the relevant onXYZ method overridden with own logic.
  */
-public class TitanCastDevice extends WebSocketClient {
+public abstract class TitanCastDevice extends WebSocketClient {
     /**
      * Enum representing the current connectivity state the Device is in.
      */
