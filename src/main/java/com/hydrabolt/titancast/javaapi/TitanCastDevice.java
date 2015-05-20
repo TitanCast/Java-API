@@ -100,7 +100,7 @@ public class TitanCastDevice extends WebSocketClient {
         }
     }
 
-    public void sendPacket(Packet p) {
+    private void sendPacket(Packet p) {
         send(p.serialize());
     }
 }
