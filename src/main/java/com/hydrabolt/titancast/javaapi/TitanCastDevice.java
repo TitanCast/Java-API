@@ -106,9 +106,6 @@ public class TitanCastDevice extends WebSocketClient {
                 // ...and call onCustomPacketReceived with the new packet
                 onCustomPacketReceived(customPacket);
                 break;
-            default:
-                System.out.println(packet.getType());
-                break;
         }
     }
 
