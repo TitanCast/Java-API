@@ -104,8 +104,12 @@ public abstract class TitanCastDevice extends WebSocketClient {
         }
     }
 
-    private void sendPacket(Packet p) {
-        send(p.serialize());
+    private void sendRawPacket(Packet packet) {
+        send(packet.serialize());
+    }
+
+    public void sendPacket(Packet packet) {
+
     }
 
     /**
