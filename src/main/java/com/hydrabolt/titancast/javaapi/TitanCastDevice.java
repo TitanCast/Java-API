@@ -47,11 +47,6 @@ public class TitanCastDevice extends WebSocketClient {
     }
 
     @Override
-    public void onOpen(ServerHandshake handshakedata) {
-
-    }
-
-    @Override
     public final void onMessage(String rawMessage) {
         // Create new packet with the raw data provided
         Packet packet = new Packet(rawMessage);
