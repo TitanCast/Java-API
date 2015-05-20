@@ -6,7 +6,7 @@ import org.java_websocket.handshake.ServerHandshake;
 
 import java.net.URI;
 
-public class Device extends WebSocketClient {
+public class TitanCastDevice extends WebSocketClient {
     /**
      * Enum representing the current connectivity state the Device is in.
      */
@@ -28,7 +28,7 @@ public class Device extends WebSocketClient {
     private TitanCastApplication application;
     private ConnectionState connectionState;
 
-    public Device(URI uri, TitanCastApplication application){
+    public TitanCastDevice(URI uri, TitanCastApplication application){
         super(uri);
         this.application = application;
     }
