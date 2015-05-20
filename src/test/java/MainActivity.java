@@ -1,6 +1,5 @@
-import com.hydrabolt.titancast.java_api.ApplicationIcon;
-import com.hydrabolt.titancast.java_api.TitanCastApplication;
-import com.hydrabolt.titancast.java_api.utils.Packet;
+import com.hydrabolt.titancast.javaapi.ApplicationIcon;
+import com.hydrabolt.titancast.javaapi.TitanCastApplication;
 
 /*
 

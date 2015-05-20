@@ -1,4 +1,4 @@
-package com.hydrabolt.titancast.java_api;
+package com.hydrabolt.titancast.javaapi;
 
 public class TitanCastApplication {
 
