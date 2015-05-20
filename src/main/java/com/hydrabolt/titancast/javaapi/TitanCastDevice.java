@@ -39,30 +39,30 @@ public class TitanCastDevice extends WebSocketClient {
      */
     private ConnectionState connectionState;
 
-    public TitanCastDevice(URI uri, TitanCastApplication application){
+    public TitanCastDevice(URI uri, TitanCastApplication application) {
         super(uri);
         this.application = application;
     }
 
     @Override
-    public void onOpen( ServerHandshake handshakedata ) {
+    public void onOpen(ServerHandshake handshakedata) {
 
     }
 
     @Override
-    public void onMessage( String message ) {
+    public void onMessage(String message) {
 
         Packet p = new Packet(message);
 
     }
 
     @Override
-    public void onClose( int code, String reason, boolean remote ) {
+    public void onClose(int code, String reason, boolean remote) {
 
     }
 
     @Override
-    public void onError( Exception ex ) {
+    public void onError(Exception ex) {
 
     }
 }
