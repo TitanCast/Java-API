@@ -6,6 +6,10 @@ import org.java_websocket.handshake.ServerHandshake;
 
 import java.net.URI;
 
+/**
+ * Class representing the connection logic of a local application connecting to an android device. It should be
+ * overwritten with an own class and the relevant onXYZ method overridden with own logic.
+ */
 public class TitanCastDevice extends WebSocketClient {
     /**
      * Enum representing the current connectivity state the Device is in.
@@ -25,7 +29,14 @@ public class TitanCastDevice extends WebSocketClient {
         connected
     }
 
+    /**
+     * Variable representing the local application for which this class does the connection logic
+     */
     private TitanCastApplication application;
+
+    /**
+     * The connection state the device is currently in
+     */
     private ConnectionState connectionState;
 
     public TitanCastDevice(URI uri, TitanCastApplication application){
