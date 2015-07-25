@@ -1,7 +1,5 @@
 package com.hydrabolt.titancast.javaapi.utils;
 
-import com.sun.deploy.util.StringUtils;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
@@ -28,7 +26,7 @@ public class ConnectionCode {
             for (int i = 0; i < 4; i++) {
                 pchunks[i] = Integer.parseInt( chunks[i], 16 ) + "";
             }
-            addr = StringUtils.join( Arrays.asList( pchunks ), "." );
+            addr = join( pchunks, "." );
             try {
                 uri = new URI( "ws://" + addr + ":25517" );
             } catch (URISyntaxException e) {
@@ -44,6 +42,17 @@ public class ConnectionCode {
             }
 
         }
+    }
+
+    private String join(String[] array, String joiner){
+
+        String toRet = "";
+        for(String s : array){
+            toRet += s + joiner;
+        }
+
+        return toRet.substring( 0, toRet.length() - 1 );
+
     }
 
 }
