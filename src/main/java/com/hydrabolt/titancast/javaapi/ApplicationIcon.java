@@ -14,7 +14,7 @@ public class ApplicationIcon {
      * This constructor should only be used if you do not yet have an image ready to be used for your application or if you wish to not have have an image for your application. The image will be set as "none" and the TitanCast Android application will not display any application icon as a result. Application Icon should be used in conjunction with TitanCastApplication to provide an icon for your application.
      */
     public ApplicationIcon() {
-        this.image = "none";
+        this.image = "#none#";
     }
 
     /**
