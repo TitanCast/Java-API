@@ -56,7 +56,6 @@ crashlytics-build.properties
 .mtj.tmp/
 
 # Package Files #
-*.jar
 *.war
 *.ear
 
@@ -66,7 +65,6 @@ hs_err_pid*
 
 ### Gradle ###
 .gradle
-build/
 
 # Ignore Gradle GUI config
 gradle-app.setting
