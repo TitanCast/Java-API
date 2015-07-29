@@ -2,9 +2,15 @@ package com.hydrabolt.titancast.javaapi;
 
 import com.hydrabolt.titancast.javaapi.utils.ConnectionCode;
 import com.hydrabolt.titancast.javaapi.utils.Packet;
+import org.java_websocket.client.DefaultSSLWebSocketClientFactory;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 
 /**
@@ -98,6 +104,7 @@ public abstract class TitanCastDevice extends WebSocketClient implements TitanCa
     }
 
     public void onError( Exception e ) {
+
         onConnectionError( e );
         onConnectionEnd( e.getLocalizedMessage() );
     }
@@ -133,6 +140,35 @@ public abstract class TitanCastDevice extends WebSocketClient implements TitanCa
 
     public void setAccelerometerSpeed( String speed ) {
         sendPacket( new Packet( "set_accelerometer_speed", speed ) );
+    }
+
+    public TitanCastDevice init(){
+        TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager() {
+            public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                return new java.security.cert.X509Certificate[]{};
+            }
+
+            public void checkClientTrusted(X509Certificate[] chain,
+                                           String authType) throws CertificateException {
+            }
+
+            public void checkServerTrusted(X509Certificate[] chain,
+                                           String authType) throws CertificateException {
+            }
+        }};
+
+
+        // Install the all-trusting trust manager
+        try {
+            SSLContext sc = SSLContext.getInstance("TLS");
+            sc.init(null, trustAllCerts, new java.security.SecureRandom());
+            this.setWebSocketFactory(new DefaultSSLWebSocketClientFactory(sc));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        this.connect();
+        return this;
     }
 
 }

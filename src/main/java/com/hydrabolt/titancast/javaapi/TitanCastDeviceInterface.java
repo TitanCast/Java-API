@@ -23,5 +23,6 @@ public interface TitanCastDeviceInterface {
     public enum ConnectionState {
         CONNECTED, NOT_CONNECTED, AWAITING_RESPONSE
     }
+    public abstract TitanCastDevice init();
 
 }

@@ -56,7 +56,6 @@ public class Packet {
     public Packet( String data ) {
         data = data.trim();
         String[] chunks = data.split( "\\s+" );
-        System.out.println( "-" + data + "-" );
         if (chunks.length == 1) {
             this.type = data;
             this.data = new ArrayList<String>();

@@ -28,7 +28,7 @@ public class ConnectionCode {
             }
             addr = join( pchunks, "." );
             try {
-                uri = new URI( "ws://" + addr + ":25517" );
+                uri = new URI( "wss://" + addr + ":25517" );
             } catch (URISyntaxException e) {
                 e.printStackTrace();
             }
@@ -36,7 +36,7 @@ public class ConnectionCode {
         } else {
             //using an IP
             try {
-                uri = new URI( "ws://" + addr + ":25517" );
+                uri = new URI( "wss://" + addr + ":25517" );
             } catch (URISyntaxException e) {
                 e.printStackTrace();
             }
