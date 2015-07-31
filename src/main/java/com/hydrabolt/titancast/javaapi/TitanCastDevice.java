@@ -1,7 +1,6 @@
 package com.hydrabolt.titancast.javaapi;
 
-import com.hydrabolt.titancast.javaapi.utils.ConnectionCode;
-import com.hydrabolt.titancast.javaapi.utils.Packet;
+import com.hydrabolt.titancast.javaapi.utils.*;
 import org.java_websocket.client.DefaultSSLWebSocketClientFactory;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
@@ -11,27 +10,48 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.sql.Connection;
 import java.util.ArrayList;
 
 /**
  * Class representing the connection logic of a local application connecting to an android device. It should be
  * overwritten with an own class and the relevant onXYZ method overridden with own logic.
  */
-public abstract class TitanCastDevice extends WebSocketClient implements TitanCastDeviceInterface {
+public abstract class TitanCastDevice {
 
     private TitanCastApplication application;
     private ConnectionState connectionState = ConnectionState.NOT_CONNECTED;
+    private TitanCastDeviceWebSocket webSocket;
+    private ConnectionCode connectionCode;
+    private DeviceDetails deviceDetails;
 
-    public TitanCastDevice( TitanCastApplication application, ConnectionCode code ) {
-        super( code.getURI() );
-        this.application = application;
+    public TitanCastDevice(TitanCastApplication application, ConnectionCode code) {
+        this.setApplication(application);
+        this.setConnectionCode(code);
+
+        webSocket = new TitanCastDeviceWebSocket(code.getURI(), this);
+
+        try {
+
+            SSLContext sc = SSLContext.getInstance("TLS");
+            sc.init(null, TitanCastSSL.getTrustCert(), new java.security.SecureRandom());
+            webSocket.setWebSocketFactory(new DefaultSSLWebSocketClientFactory(sc));
+
+        } catch (Exception e) {
+
+            onConnectionError(e);
+
+        }
+
+        webSocket.connect();
+
     }
 
     public TitanCastApplication getApplication() {
         return this.application;
     }
 
-    public void setApplication( TitanCastApplication application ) {
+    public void setApplication(TitanCastApplication application) {
         this.application = application;
     }
 
@@ -39,136 +59,130 @@ public abstract class TitanCastDevice extends WebSocketClient implements TitanCa
         return this.connectionState;
     }
 
-    public void onMessage( String s ) {
-        Packet packet = new Packet( s );
-        switch (connectionState) {
-            case NOT_CONNECTED:
-                if (packet.getType().equals( "device_details" )) {
-                    sendPacket( new Packet( "request_connect", new String[]{
-                            application.getAppName(),
-                            application.getAppDesc(),
-                            application.getApplicationIcon().getImage()
-                    } ) );
-                    onDeviceDetails( packet.getData() );
-                    connectionState = ConnectionState.AWAITING_RESPONSE;
-                    onSentRequest();
-                    break;
-                }
-                break;
-            case AWAITING_RESPONSE:
-                if (packet.getType().equals( "accept_connect_request" )) {
-                    sendPacket( new Packet( "cast_view_data", application.getAppCastURL() ) );
-                    connectionState = ConnectionState.CONNECTED;
-                    onConnectAccept();
-                }
-                if (packet.getType().equals( "reject_connect_request" )) {
-                    connectionState = ConnectionState.NOT_CONNECTED;
-                    onConnectReject();
-                    close();
-
-                }
-                break;
-            case CONNECTED:
-                //use switch here are there are many more options
-                switch (packet.getType()) {
-                    case "custom_data":
-                        onCustomData( packet.getData() );
-                        break;
-                    case "accelerometer-update":
-                        System.out.println( packet.getData() );
-                        ArrayList<String> data = packet.getData();
-                        onAccelerometerData(
-                                Float.parseFloat( data.get( 0 ) ),
-                                Float.parseFloat( data.get( 1 ) ),
-                                Float.parseFloat( data.get( 2 ) )
-                        );
-                        break;
-                    case "view-loaded":
-                        onViewLoaded();
-                        break;
-                    default:
-                        break;
-
-                }
-                break;
-        }
-
+    public void setConnectionState(ConnectionState connectionState) {
+        this.connectionState = connectionState;
     }
 
-    public void sendPacket( Packet packet ) {
-        send( packet.serialize() );
-    }
-
-    public void onOpen( ServerHandshake handshakeData ) {
-        onConnectionOpen( handshakeData );
-    }
-
-    public void onError( Exception e ) {
-
-        onConnectionError( e );
-        onConnectionEnd( e.getLocalizedMessage() );
-    }
-
-    public void onClose( int code, String reason, boolean remote ) {
-        onConnectionClose( code, reason, remote );
-        onConnectionEnd( reason );
-    }
-
-    public void onConnectionOpen( ServerHandshake handshakeData ) {
-    }
-
-    public void onConnectionError( Exception e ) {
-    }
-
-    public void onConnectionClose( int code, String reason, boolean remote ) {
-    }
-
-    public void onAccelerometerData( float x, float y, float z ) {
+    public void sendPacket(Packet packet) {
+        webSocket.send(packet.serialize());
     }
 
     public void enableAccelerometer() {
-        sendPacket( new Packet( "enable_accelerometer" ) );
+        sendPacket(new Packet("enable_accelerometer"));
     }
 
     public void disableAccelerometer() {
-        sendPacket( new Packet( "disable_accelerometer" ) );
+        sendPacket(new Packet("disable_accelerometer"));
     }
 
-    public void setOrientation( String orientation ) {
-        sendPacket( new Packet( "set_orientation", orientation ) );
+    public void setOrientation(String orientation) {
+        sendPacket(new Packet("set_orientation", orientation));
     }
 
-    public void setAccelerometerSpeed( String speed ) {
-        sendPacket( new Packet( "set_accelerometer_speed", speed ) );
+    public void setAccelerometerSpeed(String speed) {
+        sendPacket(new Packet("set_accelerometer_speed", speed));
     }
 
-    public TitanCastDevice init(){
-        TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager() {
-            public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                return new java.security.cert.X509Certificate[]{};
-            }
+    /*
 
-            public void checkClientTrusted(X509Certificate[] chain,
-                                           String authType) throws CertificateException {
-            }
+        EVENT METHODS
 
-            public void checkServerTrusted(X509Certificate[] chain,
-                                           String authType) throws CertificateException {
-            }
-        }};
+    */
 
+    /**
+     * Called when there is an initial connection to a WebSocket Server on port 25517. If this event is called,
+     * it does not necessarily mean that you are connected to TitanCast. If you want to use events for that,
+     * see <code>onDeviceDetails</code>
+     *
+     * @param handshakeData - the handshake data provided by the WebSocket client.
+     */
+    public void onConnectionOpen(ServerHandshake handshakeData) {
 
-        // Install the all-trusting trust manager
-        try {
-            SSLContext sc = SSLContext.getInstance("TLS");
-            sc.init(null, trustAllCerts, new java.security.SecureRandom());
-            this.setWebSocketFactory(new DefaultSSLWebSocketClientFactory(sc));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        this.connect();
-        return this;
     }
 
+    /**
+     * Called whenever an error happens between the connection.
+     *
+     * @param e An exception containing details about the error.
+     */
+    public abstract void onConnectionError(Exception e);
+
+    /**
+     * Called when the connection is closed
+     *
+     * @param code   The close code
+     * @param reason The reason as to why the connection was closed.
+     */
+    public abstract void onConnectionClose(int code, String reason, boolean remote);
+
+    /**
+     * Called whenever a request to connect with the app is sent.
+     */
+    public void onSentRequest() {
+
+    }
+
+    /**
+     * Called whenever the request to connect is accepted.
+     */
+    public abstract void onConnectAccept();
+
+    /**
+     * Called whenever the request to connect is rejected.
+     */
+    public abstract void onConnectReject();
+
+    /**
+     * Called whenever custom data from the app is received.
+     *
+     * @param data an ArrayList containing the parsed received data.
+     */
+    public void onCustomData(ArrayList<String> data) {
+
+    }
+
+    /**
+     * Called whenever accelerometer data is received. To start receiving accelerometer data, use <code>enableAccelerometer()</code>
+     *
+     * @param x The x value of acceleration
+     * @param y The y value of acceleration
+     * @param z The z value of acceleration
+     */
+    public void onAccelerometerData(float x, float y, float z) {
+
+    }
+
+    /**
+     * Called when the casted content has loaded on the TitanCast app.
+     */
+    public void onViewLoaded() {
+
+    }
+
+    /**
+     * Called when details about the device are received, such as Android version, app version and availability of sensors.
+     *
+     * @param deviceDetails
+     */
+    public abstract void onDeviceDetails(DeviceDetails deviceDetails);
+
+    public ConnectionCode getConnectionCode() {
+        return connectionCode;
+    }
+
+    public void setConnectionCode(ConnectionCode connectionCode) {
+        this.connectionCode = connectionCode;
+    }
+
+    public DeviceDetails getDeviceDetails() {
+        return deviceDetails;
+    }
+
+    public void setDeviceDetails(DeviceDetails deviceDetails) {
+        this.deviceDetails = deviceDetails;
+    }
+
+    public void disconnect() {
+        this.webSocket.close();
+    }
 }
